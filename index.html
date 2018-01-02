@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>MvC:I Frame Data</title>
+	
+	<script src="jquery-3.2.1.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" >
+	<link href='https://fonts.googleapis.com/css?family=Exo' rel='stylesheet'>
+	<link href='mvci_css.css' rel='stylesheet'>	
+</head>
+
+<body>
+<script src="mvci_externjs.js"></script>
+
+
+<nav id="siteNav" class="navbar navbar-default navbar-fixed-top affix-top" role="navigation">
+	<h2 id="selectedCharName"></h2>
+	<span id="charFD" class="navSpan">
+		<h2 class="navText">Frame Data:</h2>
+	</span>
+	<span id="team" class="navSpan">
+		<h2 class="navText">Team:</h2>
+	</span>
+	<span>
+		<p id="hoverMessage">Hover over your move </br> to get the punish window</p>
+	</span>
+</nav>
+
+<div id="angularDiv" ng-app="app" ng-controller="ctrl">
+<div id="mainContainer">
+	<h1 id="headerText" class="header">MvC:I Frame Data</h1>
+	<h2 id="selectTeam" class="header">Select your team (OPTIONAL)</h2>
+	<select id="charSelect1" onchange="teamCharSelected('charSelect1', 'charSelect2')">
+		<option value="">[First Character]</option>
+	</select>
+	
+	
+	<select id="charSelect2" onchange="teamCharSelected('charSelect2', 'charSelect1')">
+		<option value="">[Second Character]</option>
+	</select>
+	
+	<h2 id="selectFrameData" class="header">Select a character to view frame data for</h2>
+	<select id="charFrameData" onchange="getTable()">
+		<option value="empty"></option>
+		<script>$("#charFrameData").prop("selectedIndex", -1);</script>
+	</select>
+	
+	<script>listNames();</script>
+</div>
+<div id="frameDataContainer" style="display:none">
+	<table class="table table-striped">
+		<tr>
+			<th>Move Name</th>
+			<th>Input</th>
+			<th>Damage</th>
+			<th>Startup</th>
+			<th>Active</th>
+			<th>Recovery</th>
+			<th>Total</th>
+			<th>Block Advantage</th>
+			<th>Hit Advantage</th>
+			<th>Char 1 Punishable</th>
+			<th>Char 2 Punishable</th>
+		</tr>
+		<tr ng-repeat="x in names">
+			<td>{{x.MoveName}}</td>
+			<td>{{x.Input}}</td>
+			<td>{{x.Damage}}</td>
+			<td>{{x.Startup}}</td>
+			<td>{{x.Active}}</td>
+			<td>{{x.Recovery}}</td>
+			<td>{{x.Total}}</td>
+			<td>{{x.BlockAdvantage}}</td>
+			<td>{{x.HitAdvantage}}</td>
+			<td href="#" data-toggle="tooltip" ng-attr-title="{{x.Punisher1Opening}} Frame Punish">{{x.Punisher1}}</td>
+			<td href="#" data-toggle="tooltip" ng-attr-title="{{x.Punisher2Opening}} Frame Punish">{{x.Punisher2}}</td>
+		</tr>
+	</table>
+</div>
+</div>
+<script>
+	var app = angular.module('app', []);
+	app.controller('ctrl', function($scope, $http) {
+	$scope.update = function($charValue, $charSelect1, $charSelect2) {
+		$http({
+			method: 'GET',
+			url: 'mvci_php.php',
+			params: {
+			'characterValue': $charValue,
+			'operationType': "frameData",
+			'punisher1': $charSelect1,
+			'punisher2': $charSelect2
+			}
+		})
+		.then(function (response) {$scope.names = response.data.records;});
+	}
+	});
+</script>
+</body>
+</html>
